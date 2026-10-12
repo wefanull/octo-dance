@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Party Explorer | JSON Optimized</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --success-hover: #15803d;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        @keyframes dance {
+            0%   { transform: rotate(0deg) translateY(0) scale(1); filter: hue-rotate(0deg); }
+            25%  { transform: rotate(15deg) translateY(-15px) scale(1.1); filter: hue-rotate(90deg); }
+            50%  { transform: rotate(0deg) translateY(0) scale(1.2); filter: hue-rotate(180deg); }
+            75%  { transform: rotate(-15deg) translateY(-15px) scale(1.1); filter: hue-rotate(270deg); }
+            100% { transform: rotate(0deg) translateY(0) scale(1); filter: hue-rotate(360deg); }
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2rem;
+            background: linear-gradient(45deg, #2563eb, #db2777);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .history-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 2px dashed #e2e8f0;
+            border-radius: 20px;
+        }
+
+        .history-list {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .history-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: dance 1s infinite ease-in-out;
+            cursor: pointer;
+        }
+
+        .user-profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f1f5f9;
+            border-radius: 20px;
+            display: none;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .avatar-dancing {
+            animation: dance 0.6s infinite ease-in-out;
+            border-color: #3b82f6;
+        }
+
+        .bio-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 0.5rem;
+            max-width: 80%;
+        }
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            box-sizing: border-box;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        button {
+            padding: 0.8rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-user { background: #2563eb; color: white; }
+        .btn-repos { background: #059669; color: white; }
+
+        #result-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        pre {
+            background-color: #0f172a;
+            color: #38bdf8;
+            padding: 1.25rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .result-header {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: block;
+            text-transform: uppercase;
+        }
+
+        footer {
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GitHub Party Mode 🕺</h1>
+        </header>
+
+        <div id="history-section" class="history-section" style="display: none;">
+            <div id="history-list" class="history-list"></div>
+        </div>
+
+        <div id="user-profile" class="user-profile">
+            <img id="user-avatar" class="avatar" src="" alt="Avatar">
+            <div class="user-info">
+                <h2 id="user-display-name" style="margin:0">Nombre</h2>
+                <div id="user-login" style="font-weight:bold; color: #db2777">@username</div>
+                <div id="user-bio" class="bio-text"></div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="username" placeholder="Usuario de GitHub...">
+        </div>
+
+        <div class="actions">
+            <button class="btn-user" onclick="apiCall('user')">Perfil</button>
+            <button class="btn-repos" onclick="apiCall('repos')">Repos</button>
+        </div>
+
+        <div id="result-container">
+            <span class="result-header">Respuesta JSON (Limpia)</span>
+            <pre id="result"></pre>
+        </div>
+
+        <footer>
+            <span>Sincronización Rust + Go + JS</span>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', renderHistory);
+
+        async function apiCall(type, overrideUsername = null) {
+            const input = document.getElementById('username');
+            const rawUsername = overrideUsername || input.value;
+            const username = rawUsername.trim();
+            const resContainer = document.getElementById('result-container');
+            const resPre = document.getElementById('result');
+            const profileDiv = document.getElementById('user-profile');
+            const avatarImg = document.getElementById('user-avatar');
+            
+            if (!username) return;
+            if (overrideUsername) input.value = username;
+
+            // Validación básica de username
+            const ghRegex = /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/;
+            if (!ghRegex.test(username)) {
+                profileDiv.style.display = 'none';
+                resContainer.style.display = 'block';
+                resPre.textContent = "Error: El formato del nombre de usuario de GitHub no es válido.";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/${type}/${encodeURIComponent(username)}`);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    profileDiv.style.display = 'none';
+                    resContainer.style.display = 'block';
+                    resPre.textContent = `Error ${response.status}: ${errorText || response.statusText}`;
+                    return;
+                }
+
+                const data = await response.json();
+                
+                // 1. Manejo Visual
+                if (type === 'user' && data.avatar_url) {
+                    profileDiv.style.display = 'flex';
+                    avatarImg.src = data.avatar_url;
+                    avatarImg.classList.add('avatar-dancing');
+                    document.getElementById('user-display-name').textContent = data.name || username;
+                    document.getElementById('user-login').textContent = `@${username}`;
+                    document.getElementById('user-bio').textContent = data.bio || '';
+                    updateHistory(username, data.avatar_url);
+                } else if (type === 'repos') {
+                    profileDiv.style.display = 'none';
+                }
+
+                // 2. Manejo del Cuadro JSON
+                let cleanData;
+                if (type === 'user') {
+                    cleanData = {
+                        name: data.name,
+                        browser_user_agent: data.browser_user_agent,
+                        github_date: data.github_date
+                    };
+                } else {
+                    cleanData = data;
+                }
+
+                resContainer.style.display = 'block';
+                resPre.textContent = JSON.stringify(cleanData, null, 2);
+
+            } catch (err) {
+                console.error(err);
+                profileDiv.style.display = 'none';
+                resContainer.style.display = 'block';
+                resPre.textContent = `Error de conexión: ${err.message}`;
+            }
+        }
+
+        function updateHistory(username, avatar_url) {
+            let history;
+            try {
+                history = JSON.parse(localStorage.getItem('gh_party_history') || '[]');
+                if (!Array.isArray(history)) history = [];
+            } catch {
+                history = [];
+            }
+
+            history = history.filter(item => item && item.username !== username);
+            history.unshift({ username, avatar_url });
+            history = history.slice(0, 3);
+            localStorage.setItem('gh_party_history', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            let history;
+            try {
+                history = JSON.parse(localStorage.getItem('gh_party_history') || '[]');
+                if (!Array.isArray(history)) history = [];
+            } catch {
+                history = [];
+            }
+
+            const container = document.getElementById('history-section');
+            const list = document.getElementById('history-list');
+            list.replaceChildren();
+
+            if (history.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'flex';
+            history.forEach(user => {
+                if (!user || !user.avatar_url || !user.username) return;
+                const img = document.createElement('img');
+                img.src = user.avatar_url;
+                img.alt = user.username;
+                img.title = user.username;
+                img.className = 'history-avatar';
+                img.addEventListener('click', () => apiCall('user', user.username));
+                list.appendChild(img);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+# Entorno y secretos
+.env
+.env.*
+!.env.example
+*.env
+
+# Rust
+target/
+**/target/
+Cargo.lock
+
+# Binarios y ejecutables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# IDEs y editores
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
