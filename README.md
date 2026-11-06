@@ -40,7 +40,7 @@ GitHub
 1. **Clonar el repositorio**:
    ```bash
    git clone <url-del-repositorio>
-   cd Clase3
+   cd octo-dance
    ```
 
 2. **Configurar el token de GitHub en la API de Rust**:
